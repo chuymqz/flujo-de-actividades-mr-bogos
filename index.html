@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mr. Bogos — Flujo Operativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --border: #222;
+  --border2: #2e2e2e;
+  --text: #f0ede6;
+  --muted: #555;
+  --muted2: #888;
+  --diario: #f97316;
+  --semanal: #e8c547;
+  --mensual: #5b9cf6;
+  --accent: #f97316;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; }
+
+body { padding: 24px 16px 80px; overflow-x: hidden; }
+
+/* HEADER */
+header { text-align: center; margin-bottom: 32px; }
+header h1 { font-size: clamp(1.8rem, 7vw, 3rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+header h1 span { color: var(--accent); }
+header p { margin-top: 6px; color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* LEGEND */
+.legend { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+.leg { display: flex; align-items: center; gap: 7px; font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.07em; }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* FLOW */
+.flow { max-width: 780px; margin: 0 auto; }
+
+/* SECTION */
+.section { margin-bottom: 8px; }
+.section-row { display: flex; gap: 12px; align-items: flex-start; }
+.day-col { flex-shrink: 0; width: 78px; padding-top: 20px; text-align: right; }
+.day-tag { font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; padding: 3px 8px; border-radius: 20px; display: inline-block; }
+.diario .day-tag  { background: rgba(249,115,22,0.15); color: var(--diario); }
+.semanal .day-tag { background: rgba(232,197,71,0.15); color: var(--semanal); }
+.mensual .day-tag { background: rgba(91,156,246,0.15); color: var(--mensual); }
+
+.tl-col { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; width: 18px; }
+.tl-dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 22px; flex-shrink: 0; z-index: 2; }
+.diario .tl-dot  { background: var(--diario); box-shadow: 0 0 8px rgba(249,115,22,0.6); }
+.semanal .tl-dot { background: var(--semanal); box-shadow: 0 0 8px rgba(232,197,71,0.6); }
+.mensual .tl-dot { background: var(--mensual); box-shadow: 0 0 8px rgba(91,156,246,0.6); }
+.tl-line { width: 2px; flex: 1; min-height: 12px; }
+.diario .tl-line  { background: linear-gradient(to bottom, rgba(249,115,22,0.3), transparent); }
+.semanal .tl-line { background: linear-gradient(to bottom, rgba(232,197,71,0.3), transparent); }
+.mensual .tl-line { background: linear-gradient(to bottom, rgba(91,156,246,0.3), transparent); }
+
+.cards-col { flex: 1; padding: 10px 0 20px; display: flex; flex-direction: column; gap: 8px; }
+
+/* CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border2); }
+.card-accent { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.diario .card-accent  { background: var(--diario); }
+.semanal .card-accent { background: var(--semanal); }
+.mensual .card-accent { background: var(--mensual); }
+
+.card-main { display: flex; align-items: center; padding: 12px 14px 12px 18px; cursor: pointer; gap: 10px; }
+.card-main:hover { background: rgba(255,255,255,0.02); }
+.card-info { flex: 1; min-width: 0; }
+.card-title { font-size: 0.88rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-sub { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted2); margin-top: 2px; letter-spacing: 0.04em; }
+
+.card-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.badge { font-family: 'Space Mono', monospace; font-size: 0.55rem; letter-spacing: 0.07em; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; }
+.diario .badge  { background: rgba(249,115,22,0.12); color: var(--diario); }
+.semanal .badge { background: rgba(232,197,71,0.12); color: var(--semanal); }
+.mensual .badge { background: rgba(91,156,246,0.12); color: var(--mensual); }
+
+.btn-icon { background: none; border: 1px solid var(--border2); color: var(--muted2); border-radius: 6px; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; transition: all 0.15s; flex-shrink: 0; }
+.btn-icon:hover { background: var(--surface2); color: var(--text); border-color: #444; }
+.btn-del:hover { border-color: #c53030; color: #fc8181; }
+.chevron { font-size: 0.65rem; color: var(--muted); transition: transform 0.2s; }
+.card.open .chevron { transform: rotate(180deg); }
+
+/* CARD BODY */
+.card-body { display: none; padding: 0 14px 14px 18px; border-top: 1px solid var(--border); }
+.card.open .card-body { display: block; }
+
+.field-row { margin-top: 10px; }
+.field-label { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.field-val { font-size: 0.8rem; color: var(--muted2); line-height: 1.5; }
+
+.edit-form { display: none; margin-top: 10px; }
+.card.editing .edit-form { display: flex; flex-direction: column; gap: 8px; }
+.card.editing .card-body > .field-row { display: none; }
+
+.edit-form input, .edit-form textarea, .edit-form select {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.edit-form input:focus, .edit-form textarea:focus, .edit-form select:focus { border-color: #444; }
+.edit-form textarea { resize: vertical; min-height: 60px; }
+.edit-form select option { background: #1a1a1a; }
+
+.btn-row { display: flex; gap: 8px; }
+.btn-save { background: var(--accent); border: none; color: #000; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75rem; padding: 7px 16px; border-radius: 6px; cursor: pointer; }
+.btn-save:hover { opacity: 0.88; }
+.btn-cancel { background: none; border: 1px solid var(--border2); color: var(--muted2); font-family: 'Syne', sans-serif; font-size: 0.75rem; padding: 7px 14px; border-radius: 6px; cursor: pointer; }
+.btn-cancel:hover { border-color: #444; color: var(--text); }
+
+/* ADD CARD */
+.add-card { border: 1px dashed var(--border2); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.15s; color: var(--muted); font-size: 0.8rem; }
+.add-card:hover { border-color: #444; color: var(--muted2); background: rgba(255,255,255,0.02); }
+.add-card span { font-size: 1rem; }
+
+/* CONNECTOR */
+.connector { display: flex; justify-content: center; margin-left: 90px; padding: 2px 0; }
+
+/* LOADING */
+#loading { display: flex; align-items: center; justify-content: center; height: 60vh; gap: 12px; color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; }
+.spin { width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* FOOTER */
+.footer-note { max-width: 780px; margin: 32px auto 0; padding: 12px 18px; background: rgba(249,115,22,0.06); border: 1px solid rgba(249,115,22,0.2); border-radius: 8px; font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--accent); text-align: center; letter-spacing: 0.06em; line-height: 1.7; }
+.btn-download { display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 780px; margin: 16px auto 0; background: none; border: 1px solid var(--border2); color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: all 0.15s; width: 100%; }
+.btn-download:hover { border-color: #444; color: var(--text); background: rgba(255,255,255,0.03); }
+.btn-download.hidden { display: none; }
+
+@media (max-width: 480px) {
+  .day-col { width: 62px; }
+  .day-tag { font-size: 0.5rem; padding: 2px 6px; }
+  .card-title { font-size: 0.82rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spin"></div>Cargando flujo...</div>
+
+<div id="app" style="display:none">
+  <header>
+    <h1>MR. <span>BOGOS</span></h1>
+    <p>Flujo Operativo — editable</p>
+  </header>
+
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--diario)"></div>Diario</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--semanal)"></div>Semanal</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--mensual)"></div>Mensual</div>
+  </div>
+
+  <div class="flow" id="flow"></div>
+
+  <div class="footer-note" id="footer-note">
+    DIARIO → base de todo &nbsp;·&nbsp; SEMANAL → consolida y cierra &nbsp;·&nbsp; MENSUAL → visión ejecutiva
+  </div>
+  <button class="btn-download hidden" id="btn-download" onclick="downloadFile()">⬇ Descargar como archivo HTML</button>
+</div>
+
+<script>
+// ─── DEFAULT DATA ──────────────────────────────────────────────────────────
+const DEFAULT_SECTIONS = [
+  {
+    id: "diario",
+    label: "DIARIO",
+    type: "diario",
+    cards: [
+      { id: "d1", title: "Registro Ventas Delivery", sub: "Eats Manager + Excel Ventas Semanales", note: "", time: "" },
+      { id: "d2", title: "Registro de Gastos", sub: "Excel Reporte Mensual", note: "", time: "" },
+      { id: "d3", title: "Registro de Gastos Eventos", sub: "Excel Ventas Eventos", note: "", time: "" },
+      { id: "d4", title: "Registro Otros Ingresos", sub: "Excel Reporte Mensual", note: "", time: "" },
+      { id: "d5", title: "Corte de Caja", sub: "Efectivo y Tarjeta — Nekko", note: "", time: "" },
+      { id: "d6", title: "Revisión Pagos / Cobros", sub: "App NoSeMePasa", note: "", time: "" },
+      { id: "d7", title: "Hacer Facturas", sub: "", note: "", time: "" },
+      { id: "d8", title: "Revisión de Pendientes", sub: "Todoist", note: "", time: "" },
+      { id: "d9", title: "Revisión de Correo", sub: "Gmail", note: "", time: "" },
+    ]
+  },
+  {
+    id: "semanal",
+    label: "SEMANAL",
+    type: "semanal",
+    cards: [
+      { id: "s1", title: "Registro Ventas Centro", sub: "Excel Ventas Semanales — Domingo/Lunes", note: "", time: "" },
+      { id: "s2", title: "Registro Ventas Eventos", sub: "Excel Ventas Eventos — Domingo/Lunes", note: "", time: "" },
+      { id: "s3", title: "Cálculo de Nóminas", sub: "Excel Cálculo de Nóminas", note: "", time: "" },
+      { id: "s4", title: "Registro Ventas Delivery — Ganancia Neta", sub: "Excel Ventas Semanales", note: "", time: "" },
+      { id: "s5", title: "Reporte Mensual: Ingresos semana", sub: "Agregar ingreso de ventas", note: "", time: "" },
+    ]
+  },
+  {
+    id: "mensual",
+    label: "MENSUAL",
+    type: "mensual",
+    cards: [
+      { id: "m1", title: "Junta de Resultados", sub: "", note: "", time: "" },
+      { id: "m2", title: "Reporte Mensual de Ventas", sub: "Claude o ChatGPT", note: "", time: "" },
+      { id: "m3", title: "Reporte Pagos y Cobros del Mes", sub: "Claude", note: "", time: "" },
+      { id: "m4", title: "Checklist de Pendientes", sub: "Claude", note: "", time: "" },
+    ]
+  }
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let db = null;
+let sections = JSON.parse(JSON.stringify(DEFAULT_SECTIONS));
+
+// ─── DB INIT ───────────────────────────────────────────────────────────────
+async function initDB() {
+  try {
+    db = await window.claude?.use("db");
+  } catch(e) { db = null; }
+
+  if (db) {
+    try {
+      const snap = await db.doc("flow/data").get();
+      if (snap.exists && snap.data && snap.data.sections) {
+        sections = snap.data.sections;
+      } else {
+        await db.doc("flow/data").set({ sections });
+      }
+      db.doc("flow/data").onSnapshot(snap => {
+        if (snap.exists && snap.data && snap.data.sections) {
+          sections = snap.data.sections;
+          renderFlow();
+        }
+      });
+    } catch(e) {}
+  }
+
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  renderFlow();
+}
+
+// ─── SAVE ──────────────────────────────────────────────────────────────────
+async function save() {
+  if (!db) return;
+  try { await db.doc("flow/data").set({ sections }); } catch(e) {}
+}
+
+// ─── GENERATE ID ───────────────────────────────────────────────────────────
+function genId() { return Math.random().toString(36).slice(2, 8); }
+
+// ─── RENDER ────────────────────────────────────────────────────────────────
+function renderFlow() {
+  const flow = document.getElementById("flow");
+  flow.innerHTML = "";
+
+  sections.forEach((section, si) => {
+    const sec = document.createElement("div");
+    sec.className = "section";
+
+    const row = document.createElement("div");
+    row.className = `section-row ${section.type}`;
+
+    // Day label
+    const dayCol = document.createElement("div");
+    dayCol.className = "day-col";
+    dayCol.innerHTML = `<span class="day-tag">${section.label}</span>`;
+
+    // Timeline
+    const tlCol = document.createElement("div");
+    tlCol.className = "tl-col";
+    tlCol.innerHTML = `<div class="tl-dot"></div><div class="tl-line"></div>`;
+
+    // Cards
+    const cardsCol = document.createElement("div");
+    cardsCol.className = "cards-col";
+
+    section.cards.forEach((card, ci) => {
+      cardsCol.appendChild(makeCard(card, section.type, si, ci));
+    });
+
+    // Add card button
+    const addBtn = document.createElement("div");
+    addBtn.className = "add-card";
+    addBtn.innerHTML = `<span>+</span> Agregar actividad`;
+    addBtn.onclick = () => addCard(si);
+    cardsCol.appendChild(addBtn);
+
+    row.appendChild(dayCol);
+    row.appendChild(tlCol);
+    row.appendChild(cardsCol);
+    sec.appendChild(row);
+    flow.appendChild(sec);
+
+    // Connector between sections
+    if (si < sections.length - 1) {
+      const conn = document.createElement("div");
+      conn.className = "connector";
+      const colors = { diario: "#f97316", semanal: "#e8c547", mensual: "#5b9cf6" };
+      const c = colors[section.type] || "#444";
+      conn.innerHTML = `<svg width="2" height="26" viewBox="0 0 2 26"><line x1="1" y1="0" x2="1" y2="26" stroke="${c}" stroke-width="2" stroke-dasharray="4 3" opacity="0.3"/></svg>`;
+      flow.appendChild(conn);
+    }
+  });
+}
+
+function makeCard(card, type, si, ci) {
+  const div = document.createElement("div");
+  div.className = "card";
+  div.id = `card-${card.id}`;
+
+  const accentColors = { diario: "#f97316", semanal: "#e8c547", mensual: "#5b9cf6" };
+  const color = accentColors[type] || "#888";
+
+  div.innerHTML = `
+    <div class="card-accent"></div>
+    <div class="card-main" onclick="toggleCard('${card.id}')">
+      <div class="card-info">
+        <div class="card-title">${escHtml(card.title)}</div>
+        ${card.sub ? `<div class="card-sub">${escHtml(card.sub)}</div>` : ""}
+        ${card.time ? `<div class="card-sub">⏰ ${escHtml(card.time)}</div>` : ""}
+      </div>
+      <div class="card-actions">
+        <span class="badge">${type}</span>
+        <button class="btn-icon" onclick="event.stopPropagation(); startEdit('${card.id}', ${si}, ${ci})" title="Editar">✏️</button>
+        <button class="btn-icon btn-del" onclick="event.stopPropagation(); deleteCard(${si}, ${ci})" title="Eliminar">🗑</button>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        ${card.note ? `<div class="field-label">Nota</div><div class="field-val">${escHtml(card.note)}</div>` : ""}
+        ${!card.note && !card.time ? `<div class="field-val" style="color:var(--muted);font-style:italic;font-size:0.75rem">Sin detalles — toca ✏️ para editar</div>` : ""}
+      </div>
+      <div class="edit-form" id="form-${card.id}">
+        <div>
+          <div class="field-label">Título</div>
+          <input id="f-title-${card.id}" value="${escAttr(card.title)}" placeholder="Nombre de la actividad" />
+        </div>
+        <div>
+          <div class="field-label">Herramienta / App</div>
+          <input id="f-sub-${card.id}" value="${escAttr(card.sub)}" placeholder="Excel, Todoist, etc." />
+        </div>
+        <div>
+          <div class="field-label">Horario (opcional)</div>
+          <input id="f-time-${card.id}" value="${escAttr(card.time)}" placeholder="ej. 8:00 am, Domingo noche..." />
+        </div>
+        <div>
+          <div class="field-label">Nota (opcional)</div>
+          <textarea id="f-note-${card.id}" placeholder="Notas, dependencias, detalles...">${escHtml(card.note)}</textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn-save" onclick="saveCard('${card.id}', ${si}, ${ci})">Guardar</button>
+          <button class="btn-cancel" onclick="cancelEdit('${card.id}')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return div;
+}
+
+// ─── ACTIONS ───────────────────────────────────────────────────────────────
+function toggleCard(id) {
+  const el = document.getElementById(`card-${id}`);
+  if (!el) return;
+  el.classList.toggle("open");
+}
+
+function startEdit(id, si, ci) {
+  const el = document.getElementById(`card-${id}`);
+  if (!el) return;
+  el.classList.add("open", "editing");
+}
+
+function cancelEdit(id) {
+  const el = document.getElementById(`card-${id}`);
+  if (!el) return;
+  el.classList.remove("editing");
+}
+
+function saveCard(id, si, ci) {
+  const title = document.getElementById(`f-title-${id}`)?.value.trim();
+  if (!title) return;
+  sections[si].cards[ci] = {
+    ...sections[si].cards[ci],
+    title,
+    sub: document.getElementById(`f-sub-${id}`)?.value.trim() || "",
+    time: document.getElementById(`f-time-${id}`)?.value.trim() || "",
+    note: document.getElementById(`f-note-${id}`)?.value.trim() || "",
+  };
+  save();
+  renderFlow();
+}
+
+function deleteCard(si, ci) {
+  if (!confirm("¿Eliminar esta actividad?")) return;
+  sections[si].cards.splice(ci, 1);
+  save();
+  renderFlow();
+}
+
+function addCard(si) {
+  const title = prompt("Nombre de la nueva actividad:");
+  if (!title || !title.trim()) return;
+  sections[si].cards.push({
+    id: genId(),
+    title: title.trim(),
+    sub: "",
+    time: "",
+    note: "",
+  });
+  save();
+  renderFlow();
+}
+
+// ─── UTILS ─────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function escAttr(s) {
+  return String(s || "").replace(/"/g,"&quot;");
+}
+
+// ─── DOWNLOAD ──────────────────────────────────────────────────────────────
+let downloadsApi = null;
+
+async function initDownloads() {
+  try {
+    downloadsApi = await window.claude?.use("downloads");
+    if (downloadsApi) {
+      document.getElementById("btn-download").classList.remove("hidden");
+    }
+  } catch(e) {}
+}
+
+async function downloadFile() {
+  if (!downloadsApi) return;
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: "text/html" });
+  try {
+    await downloadsApi.save({ filename: "mr-bogos-flujo.html", data: blob });
+  } catch(e) {
+    alert("No se pudo descargar. Intenta de nuevo.");
+  }
+}
+
+// ─── BOOT ──────────────────────────────────────────────────────────────────
+initDB();
+initDownloads();
+</script>
+</body>
+</html>
